@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     ClipboardCheck,
     Check,
@@ -9,16 +9,47 @@ import {
     Mic,
     MicOff,
     Sparkles,
-    Bot
+    Bot,
+    AlertTriangle,
+    TrendingUp,
+    TrendingDown,
+    TrendingFlat,
+    Shield,
+    Zap
 } from 'lucide-react';
 import { demoChecklists } from '../data/demo';
-import type { Checklist, ChecklistItem, ChecklistCategory } from '../types';
+import type { Checklist, ChecklistItem, ChecklistCategory, AIComplianceAnalysis } from '../types';
 
-const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: ChecklistItem, toggleItem: any, checklistId: string }) => {
+interface VoiceChecklistItemProps {
+    item: ChecklistItem;
+    toggleItem: (checklistId: string, itemId: string) => void;
+    checklistId: string;
+}
+
+const VoiceChecklistItem = ({ item, toggleItem, checklistId }: VoiceChecklistItemProps) => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [aiResolution, setAiResolution] = useState('');
     const [isProcessingAI, setIsProcessingAI] = useState(false);
+    const [aiAnalysis, setAiAnalysis] = useState<AIComplianceAnalysis | null>(null);
+    const [showAnalysis, setShowAnalysis] = useState(false);
+    const [hasViolation, setHasViolation] = useState(false);
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (aiResolution) {
+            analyzeCompliance(aiResolution, item);
+        }
+    }, [aiResolution, item]);
+
+    // Cleanup typing timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const startRecording = () => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -35,6 +66,7 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: Checklist
             setIsRecording(true);
             setTranscript('');
             setAiResolution('');
+            setAiAnalysis(null);
         };
 
         recognition.onresult = (event: any) => {
@@ -59,6 +91,7 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: Checklist
 
     const handleAIResolution = (problemText: string, item: ChecklistItem) => {
         setIsProcessingAI(true);
+
         // Simulate AI thinking and streaming response
         setTimeout(() => {
             setIsProcessingAI(false);
@@ -75,10 +108,62 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: Checklist
         }, 1200);
     };
 
+    const analyzeCompliance = (resolution: string, item: ChecklistItem) => {
+        // Simulate AI analysis with violation detection
+        // TODO: Replace with actual AI API call when backend is ready
+        const riskScore = Math.random() * 100;
+        const riskLevel = riskScore > 75 ? 'critical' : riskScore > 50 ? 'high' : riskScore > 25 ? 'medium' : 'low';
+        const detectedViolation = riskScore > 50; // If risk score is above 50, flag as potential violation
+
+        if (detectedViolation) {
+            setHasViolation(true);
+            // Show non-blocking notification for violations
+            // TODO: Replace alert with toast notification when toast library is integrated
+            console.warn(`Potential Violation: ${item.task} - Risk Level: ${riskLevel}`);
+        }
+
+        const analysis: AIComplianceAnalysis = {
+            id: Date.now().toString(),
+            checklistId: 'simulated',
+            venueId: 'simulated',
+            analysisDate: new Date(),
+            riskScore,
+            riskLevel,
+            recommendations: [
+                `Review ${item.task} procedures with staff`,
+                `Implement additional safety measures`,
+                `Schedule immediate inspection if risk level is high`
+            ],
+            predictedViolations: [
+                {
+                    category: 'health',
+                    probability: riskScore / 100,
+                    severity: riskScore > 75 ? 'critical' : riskScore > 50 ? 'major' : 'minor'
+                }
+            ],
+            complianceTrends: [
+                {
+                    category: 'health',
+                    trend: Math.random() > 0.5 ? 'improving' : 'declining',
+                    scoreChange: Math.random() * 10 - 5
+                }
+            ],
+            suggestedChecklistUpdates: [
+                {
+                    originalTask: item.task,
+                    suggestedTask: `Enhanced ${item.task} verification`,
+                    reason: 'AI identified potential compliance gaps'
+                }
+            ]
+        };
+
+        setAiAnalysis(analysis);
+    };
+
     const simulateTyping = (text: string, index: number) => {
         if (index < text.length) {
             setAiResolution(prev => prev + text.charAt(index));
-            setTimeout(() => simulateTyping(text, index + 1), 15);
+            typingTimeoutRef.current = setTimeout(() => simulateTyping(text, index + 1), 15);
         }
     };
 
@@ -107,6 +192,15 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: Checklist
                     >
                         {isRecording ? <MicOff size={16} className="animate-pulse" /> : <Mic size={16} />}
                     </button>
+                    {aiAnalysis && (
+                        <button
+                            className="btn btn-ghost btn-icon"
+                            onClick={() => setShowAnalysis(!showAnalysis)}
+                            title="AI Analysis"
+                        >
+                            <Sparkles size={16} className={showAnalysis ? 'animate-pulse' : ''} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -148,6 +242,104 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: { item: Checklist
                     </pre>
                 </div>
             )}
+
+            {showAnalysis && aiAnalysis && (
+                <div style={{
+                    marginTop: 8,
+                    marginLeft: 36,
+                    padding: '16px',
+                    background: 'linear-gradient(135deg, rgba(100,100,200,0.1), rgba(0,0,0,0))',
+                    borderRadius: '8px',
+                    border: '1px solid var(--blue-600)',
+                    position: 'relative'
+                }}>
+                    <div style={{ position: 'absolute', top: -10, left: 16, background: 'var(--metal-900)', padding: '0 8px', color: 'var(--blue-400)' }}>
+                        <AlertTriangle size={16} />
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-cream)' }}>
+                        <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: aiAnalysis.riskLevel === 'critical' ? '#ef4444' : aiAnalysis.riskLevel === 'high' ? '#f59e0b' : aiAnalysis.riskLevel === 'medium' ? '#eab308' : '#10b981' }}>
+                                    {aiAnalysis.riskLevel.toUpperCase()}
+                                </div>
+                                <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                    Risk Score: {Math.round(aiAnalysis.riskScore)}%
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, textAlign: 'right' }}>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                    {new Date(aiAnalysis.analysisDate).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: '12px', borderLeft: '2px solid var(--blue-400)', paddingLeft: '8px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>AI Recommendations:</div>
+                            <ul style={{ margin: 0, padding: 0, paddingLeft: '16px' }}>
+                                {aiAnalysis.recommendations.map((rec, i) => (
+                                    <li key={i} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>
+                                        {rec}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div style={{ marginBottom: '12px', borderLeft: '2px solid var(--gold-400)', paddingLeft: '8px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Predicted Violations:</div>
+                            {aiAnalysis.predictedViolations.map((violation, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    <div style={{ minWidth: '80px' }}>{violation.category}</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '4px', padding: '2px 6px', fontSize: '0.75rem' }}>
+                                            {Math.round(violation.probability * 100)}% chance
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: '0.7rem', color: violation.severity === 'critical' ? '#ef4444' : violation.severity === 'major' ? '#f59e0b' : '#3b82f6' }}>
+                                        {violation.severity}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ marginBottom: '12px', borderLeft: '2px solid var(--emerald-400)', paddingLeft: '8px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Compliance Trends:</div>
+                            {aiAnalysis.complianceTrends.map((trend, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    <div style={{ minWidth: '80px' }}>{trend.category}</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            {trend.trend === 'improving' && <TrendingUp size={12} color="#10b981" />}
+                                            {trend.trend === 'declining' && <TrendingDown size={12} color="#ef4444" />}
+                                            {trend.trend === 'stable' && <TrendingFlat size={12} color="#6b7280" />}
+                                            <span style={{ fontSize: '0.75rem' }}>
+                                                {trend.trend} by {Math.abs(trend.scoreChange).toFixed(1)}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '8px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Suggested Checklist Updates:</div>
+                            {aiAnalysis.suggestedChecklistUpdates.map((update, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    <div style={{ minWidth: '80px', opacity: 0.7 }}>Update:</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ marginBottom: '2px' }}>
+                                            <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{update.originalTask}</span>
+                                        </div>
+                                        <div style={{ color: '#fbbf24' }}>{update.suggestedTask}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                            {update.reason}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -157,6 +349,10 @@ export default function ChecklistsPage() {
     const [activeFilter, setActiveFilter] = useState<'all' | ChecklistCategory>('all');
     const [expandedId, setExpandedId] = useState<string | null>(checklists[0]?.id || null);
     const [showAdd, setShowAdd] = useState(false);
+    const [complianceScore, setComplianceScore] = useState<number>(85);
+    const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+    const [trend, setTrend] = useState<'improving' | 'declining' | 'stable'>('stable');
+    const [lastAnalysis, setLastAnalysis] = useState<Date | null>(new Date());
 
     const filtered =
         activeFilter === 'all'
@@ -198,13 +394,81 @@ export default function ChecklistsPage() {
         }
     };
 
+    const refreshAnalysis = () => {
+        // TODO: Replace with actual API call to refresh compliance data
+        // Simulate data refresh with random values
+        const newScore = Math.floor(Math.random() * 30) + 70; // 70-100 range
+        const riskLevels: ('low' | 'medium' | 'high' | 'critical')[] = ['low', 'medium', 'high', 'critical'];
+        const trends: ('improving' | 'declining' | 'stable')[] = ['improving', 'declining', 'stable'];
+
+        setComplianceScore(newScore);
+        setRiskLevel(riskLevels[Math.floor(Math.random() * riskLevels.length)]);
+        setTrend(trends[Math.floor(Math.random() * trends.length)]);
+        setLastAnalysis(new Date());
+    };
+
     return (
         <div>
+            {/* AI Compliance Score Card */}
+            <div className="card" style={{ marginBottom: '16px', padding: '16px', background: 'linear-gradient(135deg, rgba(100,100,200,0.1), rgba(0,0,0,0))', border: '1px solid var(--blue-600)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Shield size={20} color="#3b82f6" />
+                        <div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                                {complianceScore}%
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                Overall Compliance Score
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ flex: 1 }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {trend === 'improving' && <TrendingUp size={14} color="#10b981" />}
+                            {trend === 'declining' && <TrendingDown size={14} color="#ef4444" />}
+                            {trend === 'stable' && <TrendingFlat size={14} color="#6b7280" />}
+                            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                {trend}
+                            </span>
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                            Last updated: {lastAnalysis ? lastAnalysis.toLocaleDateString() : 'Never'}
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Risk Level:</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 'bold', color: riskLevel === 'critical' ? '#ef4444' : riskLevel === 'high' ? '#f59e0b' : riskLevel === 'medium' ? '#eab308' : '#10b981' }}>
+                                {riskLevel.toUpperCase()}
+                            </div>
+                            {riskLevel === 'critical' && <Zap size={14} color="#ef4444" className="animate-pulse" />}
+                            {riskLevel === 'high' && <Zap size={14} color="#f59e0b" />}
+                            {riskLevel === 'medium' && <Zap size={14} color="#eab308" />}
+                            {riskLevel === 'low' && <Zap size={14} color="#10b981" />}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button className="btn btn-ghost btn-icon" title="Refresh Analysis" onClick={refreshAnalysis}>
+                            <Zap size={16} />
+                        </button>
+                        <button className="btn btn-ghost btn-icon" title="View Detailed Report">
+                            <AlertTriangle size={16} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div className="page-header">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1>Checklists</h1>
-                        <p>Digital inspection checklists with photo verification</p>
+                        <p>Digital inspection checklists with AI-powered compliance assistance</p>
                     </div>
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
                         <Plus size={16} /> New Checklist

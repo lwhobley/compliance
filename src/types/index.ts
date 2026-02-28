@@ -145,3 +145,28 @@ export interface DashboardStats {
   complianceScore: number;
 }
 
+export interface AIComplianceAnalysis {
+  id: string;
+  checklistId: string;
+  venueId: string;
+  analysisDate: Date;
+  riskScore: number; // 0-100, higher = more risky
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  recommendations: string[];
+  predictedViolations: {
+    category: ChecklistCategory;
+    probability: number; // 0-1
+    severity: 'minor' | 'major' | 'critical';
+  }[];
+  complianceTrends: {
+    category: ChecklistCategory;
+    trend: 'improving' | 'declining' | 'stable';
+    scoreChange: number;
+  }[];
+  suggestedChecklistUpdates: {
+    originalTask: string;
+    suggestedTask: string;
+    reason: string;
+  }[];
+}
+

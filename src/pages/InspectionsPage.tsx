@@ -24,14 +24,14 @@ export default function InspectionsPage() {
         : 0;
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <h1>Inspection Logs</h1>
                 <p>Time-stamped inspection records for health, fire, and alcohol compliance</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-3" style={{ marginBottom: 24 }}>
+            <div className="grid grid-3 animate-enter delay-1" style={{ marginBottom: 24 }}>
                 <div className="stat-card">
                     <div
                         className="stat-icon"

@@ -37,7 +37,7 @@ export default function CertificationsPage() {
     const active = certs.filter((c) => differenceInDays(c.expiryDate, new Date()) > 60);
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <div className="flex items-center justify-between">
                     <div>

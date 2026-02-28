@@ -25,7 +25,7 @@ export default function SettingsPage() {
     ];
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <h1>Settings</h1>
                 <p>Manage your venue, notifications, and billing preferences</p>

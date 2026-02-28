@@ -145,12 +145,3 @@ export interface DashboardStats {
   complianceScore: number;
 }
 
-export interface SeafoodLabel {
-  id: string;
-  venueId: string;
-  itemName: string;
-  isImported: boolean;
-  origin?: string;
-  signagePosted: boolean;
-  lastVerified: Date;
-}

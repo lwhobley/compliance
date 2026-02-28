@@ -17,7 +17,7 @@ export default function PaywallPage() {
     };
 
     return (
-        <div style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <div className="animate-enter" style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <div style={{
                 width: 64,
                 height: 64,

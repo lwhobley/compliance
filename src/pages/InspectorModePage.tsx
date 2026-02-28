@@ -37,7 +37,7 @@ export default function InspectorModePage() {
             : 0;
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <h1>
                     <FileText

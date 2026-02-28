@@ -8,7 +8,6 @@ import type {
     InspectionLog,
     Incident,
     DashboardStats,
-    SeafoodLabel,
 } from '../types';
 
 // ── Dashboard Stats (Starting at Zero) ───────
@@ -102,6 +101,3 @@ export const demoInspectionLogs: InspectionLog[] = [];
 
 // ── Incidents (Empty) ─────────────────────────
 export const demoIncidents: Incident[] = [];
-
-// ── Seafood Labels (Empty) ────────────────────
-export const demoSeafoodLabels: SeafoodLabel[] = [];

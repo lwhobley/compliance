@@ -152,7 +152,7 @@ export default function AuthPage() {
             <div className="auth-form-section">
                 <div className="auth-form-card card shadow-leather">
                     {view === 'signin' && (
-                        <div className="animate-fade-in">
+                        <div className="animate-enter">
                             <h2 className="form-title text-cream">Welcome Back</h2>
                             <p className="form-subtitle text-muted">Log in to your venue dashboard</p>
 
@@ -231,7 +231,7 @@ export default function AuthPage() {
                     )}
 
                     {view === 'signup' && (
-                        <div className="animate-fade-in">
+                        <div className="animate-enter-right">
                             <button
                                 className="btn btn-ghost btn-xs mb-4 p-0 flex items-center gap-1"
                                 onClick={() => setView('signin')}

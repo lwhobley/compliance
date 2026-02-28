@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -7,7 +7,6 @@ import {
   Users,
   AlertTriangle,
   FileText,
-  Fish,
   Settings,
   LogOut,
   Menu,
@@ -16,29 +15,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-interface NavItem {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  badge?: number;
-}
-
 export default function Sidebar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const navItems: NavItem[] = [
-    { to: '/', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-    { to: '/checklists', icon: <ClipboardCheck size={18} />, label: 'Checklists', badge: 3 },
-    { to: '/audits', icon: <FileText size={18} />, label: 'State Audits' },
-    { to: '/inspections', icon: <Shield size={18} />, label: 'Inspections' },
-    { to: '/certifications', icon: <Users size={18} />, label: 'Staff Certs', badge: 2 },
-    { to: '/incidents', icon: <AlertTriangle size={18} />, label: 'Incidents' },
-    { to: '/seafood', icon: <Fish size={18} />, label: 'Seafood Labels' },
-    { to: '/inspector-mode', icon: <FileText size={18} />, label: 'Inspector Mode' },
-    { to: '/settings', icon: <Settings size={18} />, label: 'Settings' },
-  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,31 +57,67 @@ export default function Sidebar() {
         </div>
 
         {/* Nav */}
-        <nav className="sidebar-nav">
-          <div className="sidebar-nav-label">MAIN MENU</div>
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`
-              }
-              onClick={() => setMobileOpen(false)}
-            >
-              <span className="sidebar-link-icon">{item.icon}</span>
-              <span className="sidebar-link-label">{item.label}</span>
-              {item.badge ? (
-                <span className="sidebar-link-badge">{item.badge}</span>
-              ) : (
-                <ChevronRight size={14} className="sidebar-link-arrow" />
-              )}
+        <nav className="sidebar-nav animate-enter-left">
+          <div className="sidebar-group delay-1">
+            <div className="sidebar-nav-label">OPERATIONS</div>
+            <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><LayoutDashboard size={18} /></span>
+              <span className="sidebar-link-label">Command Center</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
             </NavLink>
-          ))}
+            <NavLink to="/checklists" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><ClipboardCheck size={18} /></span>
+              <span className="sidebar-link-label">Daily Checklists</span>
+              <span className="sidebar-link-badge">3</span>
+            </NavLink>
+            <NavLink to="/audits" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><FileText size={18} /></span>
+              <span className="sidebar-link-label">State Audits</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
+            </NavLink>
+          </div>
+
+          <div className="sidebar-group delay-2">
+            <div className="sidebar-nav-label">COMPLIANCE VAULT</div>
+            <NavLink to="/inspections" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><Shield size={18} /></span>
+              <span className="sidebar-link-label">Inspection Logs</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
+            </NavLink>
+            <NavLink to="/certifications" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><Users size={18} /></span>
+              <span className="sidebar-link-label">Staff Certs</span>
+              <span className="sidebar-link-badge badge-pulse">2</span>
+            </NavLink>
+
+            <NavLink to="/incidents" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><AlertTriangle size={18} /></span>
+              <span className="sidebar-link-label">Incident Reports</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
+            </NavLink>
+          </div>
+
+          <div className="sidebar-group delay-3">
+            <div className="sidebar-nav-label">EMERGENCY</div>
+            <NavLink to="/inspector-mode" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''} sidebar-link--emergency`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><Shield size={18} /></span>
+              <span className="sidebar-link-label">INSPECTOR MODE</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
+            </NavLink>
+          </div>
+
+          <div className="sidebar-group delay-4">
+            <div className="sidebar-nav-label">SYSTEM</div>
+            <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`} onClick={() => setMobileOpen(false)}>
+              <span className="sidebar-link-icon"><Settings size={18} /></span>
+              <span className="sidebar-link-label">Settings</span>
+              <ChevronRight size={14} className="sidebar-link-arrow" />
+            </NavLink>
+          </div>
         </nav>
 
         {/* User */}
-        <div className="sidebar-footer">
+        <div className="sidebar-footer animate-enter-left delay-5">
           <div className="sidebar-user">
             <div className="sidebar-user-avatar">
               {(user?.firstName || user?.displayName)?.charAt(0).toUpperCase() || 'U'}
@@ -213,6 +229,10 @@ export default function Sidebar() {
           overflow-y: auto;
         }
 
+        .sidebar-group {
+          margin-bottom: 24px;
+        }
+
         .sidebar-nav-label {
           font-size: 0.65rem;
           font-weight: 700;
@@ -220,6 +240,16 @@ export default function Sidebar() {
           letter-spacing: 0.1em;
           padding: 0 8px;
           margin-bottom: 8px;
+        }
+
+        .sidebar-link--emergency {
+          border: 1px dashed rgba(251, 113, 133, 0.4);
+          background: rgba(251, 113, 133, 0.05);
+        }
+
+        .sidebar-link--emergency:hover {
+          background: rgba(251, 113, 133, 0.1);
+          border-color: var(--accent-rose);
         }
 
         .sidebar-link {

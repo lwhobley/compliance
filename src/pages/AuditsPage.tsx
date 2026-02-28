@@ -275,7 +275,7 @@ export default function AuditsPage() {
     }, [currentItems, searchQuery]);
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>

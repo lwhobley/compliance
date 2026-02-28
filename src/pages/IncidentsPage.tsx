@@ -35,7 +35,7 @@ export default function IncidentsPage() {
     };
 
     return (
-        <div>
+        <div className="animate-enter">
             <div className="page-header">
                 <div className="flex items-center justify-between">
                     <div>

@@ -11,9 +11,9 @@ import {
     signOut as firebaseSignOut,
     onAuthStateChanged
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import type { UserProfile, SignUpData } from '../types';
+import type { UserProfile, SignUpData, VenueType, EmployeeRange } from '../types';
 
 interface AuthContextType {
     user: UserProfile | null;
@@ -32,50 +32,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            if (firebaseUser) {
-                try {
-                    // Fetch profile from Firestore
-                    const docRef = doc(db, 'users', firebaseUser.uid);
-                    const docSnap = await getDoc(docRef);
+        let unsubscribeFromFirestore: (() => void) | null = null;
 
+        const unsubscribeFromAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+            // Clean up previous listener
+            if (unsubscribeFromFirestore) {
+                unsubscribeFromFirestore();
+                unsubscribeFromFirestore = null;
+            }
+
+            if (firebaseUser) {
+                // Listen to profile in real-time
+                const docRef = doc(db, 'users', firebaseUser.uid);
+                unsubscribeFromFirestore = onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUser({ uid: firebaseUser.uid, ...docSnap.data() } as UserProfile);
                     } else {
-                        // Create minimal profile if Google Sign-In is used for the first time
-                        const newProfile: UserProfile = {
+                        // Partial user object for redirected completion form
+                        // This user has authenticated but has not completed their profile
+                        const partialUser: UserProfile = {
                             uid: firebaseUser.uid,
                             email: firebaseUser.email || '',
-                            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+                            displayName: firebaseUser.displayName || '',
                             firstName: firebaseUser.displayName?.split(' ')[0] || '',
                             lastName: firebaseUser.displayName?.split(' ')[1] || '',
-                            company: '',
+                            company: '', // Missing required field - triggers completion flow
                             city: '',
                             state: '',
                             zipcode: '',
-                            venueType: 'bar',
-                            employeeRange: '1-10',
+                            venueType: 'bar' as VenueType,
+                            employeeRange: '1-10' as EmployeeRange,
                             auditState: '',
                             role: 'admin',
                             venueId: `venue-${firebaseUser.uid}`,
-                            createdAt: new Date().toISOString() as any,
                             subscriptionTier: 'free',
+                            createdAt: new Date().toISOString(),
                             trialEndsAt: new Date(Date.now() + 3 * 86400000).toISOString(),
                         };
-                        await setDoc(docRef, newProfile);
-                        setUser(newProfile);
+                        setUser(partialUser);
                     }
-                } catch (error) {
-                    console.error("Error fetching user data:", error);
-                    setUser(null);
-                }
+                    setLoading(false);
+                }, (error) => {
+                    console.error("Firestore listener error:", error);
+                    setLoading(false);
+                });
             } else {
                 setUser(null);
+                setLoading(false);
             }
-            setLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribeFromAuth();
+            if (unsubscribeFromFirestore) unsubscribeFromFirestore();
+        };
     }, []);
 
     const signIn = async (email: string, password: string) => {

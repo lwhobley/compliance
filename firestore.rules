@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Is the user authenticated?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: Does the user belong to this venue?
+    function isVenueMember(venueId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.venueId == venueId;
+    }
+
+    // Helper: Is the user an admin or manager for this venue?
+    function isVenueAdmin(venueId) {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isAuthenticated() &&
+             userData.venueId == venueId &&
+             userData.role in ['admin', 'manager'];
+    }
+
+    // ── Venues ─────────────────────────────
+    match /venues/{venueId} {
+      allow read: if isVenueMember(venueId);
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ── Users / Profiles ───────────────────
+    match /users/{userId} {
+      allow read: if isAuthenticated() &&
+                    (request.auth.uid == userId ||
+                     isVenueMember(resource.data.venueId));
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if false; // Never allow profile deletion from client
+    }
+
+    // ── Checklists ─────────────────────────
+    match /checklists/{checklistId} {
+      allow read: if isVenueMember(resource.data.venueId);
+      allow create: if isAuthenticated() &&
+                      isVenueMember(request.resource.data.venueId);
+      allow update: if isVenueMember(resource.data.venueId);
+      allow delete: if isVenueAdmin(resource.data.venueId);
+    }
+
+    // ── Inspection Logs ────────────────────
+    match /inspectionLogs/{logId} {
+      allow read: if isVenueMember(resource.data.venueId);
+      allow create: if isAuthenticated() &&
+                      isVenueMember(request.resource.data.venueId);
+      allow update: if false; // Inspection logs are immutable
+      allow delete: if false; // Never delete compliance records
+    }
+
+    // ── Staff Certifications ───────────────
+    match /certifications/{certId} {
+      allow read: if isVenueMember(resource.data.venueId);
+      allow create: if isVenueAdmin(request.resource.data.venueId);
+      allow update: if isVenueAdmin(resource.data.venueId);
+      allow delete: if isVenueAdmin(resource.data.venueId);
+    }
+
+    // ── Incidents ──────────────────────────
+    match /incidents/{incidentId} {
+      allow read: if isVenueMember(resource.data.venueId);
+      allow create: if isAuthenticated() &&
+                      isVenueMember(request.resource.data.venueId);
+      allow update: if isVenueAdmin(resource.data.venueId);
+      allow delete: if false; // Never delete incident records
+    }
+
+    // ── Seafood Labels ─────────────────────
+    match /seafoodLabels/{labelId} {
+      allow read: if isVenueMember(resource.data.venueId);
+      allow create, update: if isVenueAdmin(request.resource.data.venueId);
+      allow delete: if isVenueAdmin(resource.data.venueId);
+    }
+  }
+}

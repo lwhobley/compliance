@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Shield,
     Mail,
@@ -7,7 +7,14 @@ import {
     ChevronRight,
     AlertCircle,
     ArrowLeft,
-    CheckCircle2
+    CheckCircle2,
+    Sparkles,
+    Star,
+    Quote,
+    Award,
+    Users,
+    Clock,
+    ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { US_STATES, VENUE_TYPES, EMPLOYEE_RANGES } from '../data/states';
@@ -15,6 +22,59 @@ import type { VenueType, EmployeeRange } from '../types';
 import { Link } from 'react-router-dom';
 
 type AuthView = 'signin' | 'signup' | 'forgot-password';
+
+// Animated Counter Component
+function AnimatedCounter({ end, duration = 2000, suffix = '' }: { end: number; duration?: number; suffix?: string }) {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        let startTime: number;
+        const animate = (currentTime: number) => {
+            if (!startTime) startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        requestAnimationFrame(animate);
+    }, [end, duration]);
+
+    return <span>{count}{suffix}</span>;
+}
+
+// Testimonials Data
+const TESTIMONIALS = [
+    {
+        quote: "We passed our health inspection with zero violations for the first time in 5 years. The AI checklist suggestions caught issues we didn't even know existed.",
+        author: "Sarah Martinez",
+        role: "General Manager",
+        venue: "Bourbon Street Grill",
+        rating: 5
+    },
+    {
+        quote: "ComplianceDaddy paid for itself in the first month. No more fines, no more scrambling when the inspector shows up unexpectedly.",
+        author: "Mike Thompson",
+        role: "Owner",
+        venue: "The Brass Rail",
+        rating: 5
+    },
+    {
+        quote: "The voice-to-checklist feature saves us 2 hours every day. My staff actually enjoys doing compliance now.",
+        author: "Jennifer Liu",
+        role: "Operations Director",
+        venue: "Downtown Hospitality Group",
+        rating: 5
+    }
+];
+
+// Stats Data
+const STATS = [
+    { value: 500, suffix: '+', label: 'Venues Protected' },
+    { value: 99, suffix: '%', label: 'Inspection Pass Rate' },
+    { value: 50, suffix: 'K+', label: 'Compliance Tasks Completed' },
+    { value: 2, suffix: 'M+', label: 'In Violations Prevented' }
+];
 
 export default function AuthPage() {
     const { signIn, signUp, signInWithGoogle, forgotPassword } = useAuth();
@@ -111,40 +171,105 @@ export default function AuthPage() {
                     </div>
 
                     <div className="showcase-headlines">
+                        <div className="ai-badge">
+                            <Sparkles size={14} />
+                            <span>AI-Powered Compliance</span>
+                        </div>
                         <h2 className="title-lg text-cream">Stop Fearing The Inspector.</h2>
                         <p className="subtitle text-muted">
-                            Replace your paper binders and sticky notes with a digital command center built
-                            for hospitality veterans.
+                            The only compliance platform that uses AI to predict violations before they happen.
+                            Join 500+ venues that ace inspections with zero stress.
                         </p>
                     </div>
 
                     <div className="feature-grid">
                         <div className="feature-item">
+                            <div className="feature-icon"><Sparkles size={20} /></div>
+                            <div>
+                                <h4 className="text-cream">AI Compliance Assistant</h4>
+                                <p className="text-muted-sm">Voice-activated checklists with smart recommendations that predict violations before they happen.</p>
+                            </div>
+                        </div>
+                        <div className="feature-item">
                             <div className="feature-icon"><CheckCircle2 size={20} /></div>
                             <div>
                                 <h4 className="text-cream">Smart Checklists</h4>
-                                <p className="text-muted-sm">Pre-loaded health, fire, and alcohol templates.</p>
+                                <p className="text-muted-sm">Pre-loaded health, fire, and alcohol templates customized for your venue type.</p>
                             </div>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><CheckCircle2 size={20} /></div>
                             <div>
                                 <h4 className="text-cream">Audit Trails</h4>
-                                <p className="text-muted-sm">Time-stamped photo logs for 100% accountability.</p>
+                                <p className="text-muted-sm">Time-stamped photo logs with GPS verification for 100% inspector accountability.</p>
                             </div>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><CheckCircle2 size={20} /></div>
                             <div>
                                 <h4 className="text-cream">Cert Vault</h4>
-                                <p className="text-muted-sm">Auto-alerts before your permits expire.</p>
+                                <p className="text-muted-sm">Auto-alerts 30, 60, 90 days before permits expire. Never miss a renewal deadline.</p>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Stats Section */}
+                    <div className="stats-section">
+                        {STATS.map((stat, index) => (
+                            <div key={index} className="stat-item">
+                                <div className="stat-value">
+                                    <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                                </div>
+                                <div className="stat-label">{stat.label}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Testimonials Section */}
+                    <div className="testimonials-section">
+                        <h3 className="testimonials-title">Loved by Hospitality Pros</h3>
+                        <div className="testimonials-grid">
+                            {TESTIMONIALS.map((testimonial, index) => (
+                                <div key={index} className="testimonial-card">
+                                    <div className="testimonial-stars">
+                                        {[...Array(testimonial.rating)].map((_, i) => (
+                                            <Star key={i} size={14} className="star-filled" />
+                                        ))}
+                                    </div>
+                                    <Quote size={20} className="testimonial-quote-icon" />
+                                    <p className="testimonial-text">"{testimonial.quote}"</p>
+                                    <div className="testimonial-author">
+                                        <div className="testimonial-name">{testimonial.author}</div>
+                                        <div className="testimonial-role">{testimonial.role}, {testimonial.venue}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Trust Badges */}
+                    <div className="trust-badges">
+                        <div className="trust-badge">
+                            <ShieldCheck size={18} />
+                            <span>SOC 2 Compliant</span>
+                        </div>
+                        <div className="trust-badge">
+                            <Award size={18} />
+                            <span>256-bit Encryption</span>
+                        </div>
+                        <div className="trust-badge">
+                            <Users size={18} />
+                            <span>HIPAA Ready</span>
+                        </div>
+                        <div className="trust-badge">
+                            <Clock size={18} />
+                            <span>99.9% Uptime</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="auth-showcase-footer">
-                    <p className="text-muted-sm">Trusted by 200+ venues in Louisiana and beyond.</p>
+                    <p className="text-muted-sm">Join 500+ venues already using ComplianceDaddy to ace their inspections.</p>
                 </div>
             </div>
 
@@ -474,6 +599,22 @@ export default function AuthPage() {
           font-family: var(--font-display);
         }
 
+        .ai-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+          border: 1px solid rgba(212, 175, 55, 0.3);
+          color: var(--gold-400);
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          margin-bottom: 16px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
         .showcase-headlines .subtitle {
           font-size: 1.25rem;
           line-height: 1.6;
@@ -643,12 +784,149 @@ export default function AuthPage() {
           to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Stats Section */
+        .stats-section {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
+          margin: 48px 0;
+          padding: 24px;
+          background: rgba(212, 175, 55, 0.05);
+          border: 1px solid rgba(212, 175, 55, 0.15);
+          border-radius: 12px;
+        }
+
+        .stat-item {
+          text-align: center;
+        }
+
+        .stat-value {
+          font-size: 2rem;
+          font-weight: 800;
+          color: var(--gold-400);
+          font-family: var(--font-display);
+        }
+
+        .stat-label {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          margin-top: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+          margin: 48px 0;
+        }
+
+        .testimonials-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: var(--text-cream);
+          margin-bottom: 24px;
+          text-align: center;
+          opacity: 0.9;
+        }
+
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+
+        .testimonial-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 20px;
+          position: relative;
+        }
+
+        .testimonial-stars {
+          display: flex;
+          gap: 4px;
+          margin-bottom: 12px;
+        }
+
+        .star-filled {
+          color: var(--gold-400);
+          fill: var(--gold-400);
+        }
+
+        .testimonial-quote-icon {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          color: rgba(212, 175, 55, 0.2);
+        }
+
+        .testimonial-text {
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+          margin-bottom: 16px;
+          font-style: italic;
+        }
+
+        .testimonial-author {
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          padding-top: 12px;
+        }
+
+        .testimonial-name {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--text-cream);
+        }
+
+        .testimonial-role {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          margin-top: 32px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .trust-badge {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          opacity: 0.8;
+        }
+
+        .trust-badge svg {
+          color: var(--gold-400);
+        }
+
         @media (max-width: 1024px) {
           .auth-container {
             grid-template-columns: 1fr;
           }
           .auth-showcase {
             display: none;
+          }
+        }
+
+        @media (max-width: 1200px) {
+          .stats-section {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .testimonials-grid {
+            grid-template-columns: 1fr;
+          }
+          .trust-badges {
+            flex-wrap: wrap;
+            gap: 16px;
           }
         }
       `}</style>

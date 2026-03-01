@@ -352,6 +352,17 @@ export default function AuthPage() {
                                     Create one for free
                                 </button>
                             </p>
+
+                            <div className="demo-divider">
+                                <span>or</span>
+                            </div>
+
+                            <Link to="/demo" className="btn btn-demo w-full">
+                                <Sparkles size={18} /> Try Live Demo
+                            </Link>
+                            <p className="text-center text-xs text-muted mt-2">
+                                No signup required • See AI in action
+                            </p>
                         </div>
                     )}
 
@@ -773,6 +784,44 @@ export default function AuthPage() {
         .terms-text {
           font-size: 0.75rem;
           color: var(--text-muted-sm);
+        }
+
+        .demo-divider {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin: 24px 0;
+          color: var(--text-muted-sm);
+        }
+
+        .demo-divider::before, .demo-divider::after {
+          content: '';
+          flex: 1;
+          border-bottom: 1px solid var(--metal-700);
+        }
+
+        .demo-divider span {
+          padding: 0 16px;
+          font-size: 0.8rem;
+        }
+
+        .btn-demo {
+          background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+          border: 1px solid var(--gold-400);
+          color: var(--gold-400);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          text-decoration: none;
+        }
+
+        .btn-demo:hover {
+          background: rgba(212, 175, 55, 0.25);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
         }
 
         .animate-fade-in {

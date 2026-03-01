@@ -18,6 +18,7 @@ import PrivacyPage from './pages/PrivacyPage';
 import SubscriptionGuard from './components/SubscriptionGuard';
 
 import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
+import DemoPage from './pages/DemoPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -104,6 +105,7 @@ function AppRoutes() {
       />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/demo" element={<DemoPage />} />
       <Route
         path="/*"
         element={

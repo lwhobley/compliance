@@ -13,7 +13,7 @@ import {
     AlertTriangle,
     TrendingUp,
     TrendingDown,
-    TrendingFlat,
+    Minus,
     Shield,
     Zap
 } from 'lucide-react';
@@ -33,12 +33,11 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: VoiceChecklistIte
     const [isProcessingAI, setIsProcessingAI] = useState(false);
     const [aiAnalysis, setAiAnalysis] = useState<AIComplianceAnalysis | null>(null);
     const [showAnalysis, setShowAnalysis] = useState(false);
-    const [hasViolation, setHasViolation] = useState(false);
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (aiResolution) {
-            analyzeCompliance(aiResolution, item);
+            analyzeCompliance(item);
         }
     }, [aiResolution, item]);
 
@@ -108,7 +107,7 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: VoiceChecklistIte
         }, 1200);
     };
 
-    const analyzeCompliance = (resolution: string, item: ChecklistItem) => {
+    const analyzeCompliance = (item: ChecklistItem) => {
         // Simulate AI analysis with violation detection
         // TODO: Replace with actual AI API call when backend is ready
         const riskScore = Math.random() * 100;
@@ -116,7 +115,6 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: VoiceChecklistIte
         const detectedViolation = riskScore > 50; // If risk score is above 50, flag as potential violation
 
         if (detectedViolation) {
-            setHasViolation(true);
             // Show non-blocking notification for violations
             // TODO: Replace alert with toast notification when toast library is integrated
             console.warn(`Potential Violation: ${item.task} - Risk Level: ${riskLevel}`);
@@ -310,7 +308,7 @@ const VoiceChecklistItem = ({ item, toggleItem, checklistId }: VoiceChecklistIte
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             {trend.trend === 'improving' && <TrendingUp size={12} color="#10b981" />}
                                             {trend.trend === 'declining' && <TrendingDown size={12} color="#ef4444" />}
-                                            {trend.trend === 'stable' && <TrendingFlat size={12} color="#6b7280" />}
+                                            {trend.trend === 'stable' && <Minus size={12} color="#6b7280" />}
                                             <span style={{ fontSize: '0.75rem' }}>
                                                 {trend.trend} by {Math.abs(trend.scoreChange).toFixed(1)}%
                                             </span>
@@ -428,7 +426,7 @@ export default function ChecklistsPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {trend === 'improving' && <TrendingUp size={14} color="#10b981" />}
                             {trend === 'declining' && <TrendingDown size={14} color="#ef4444" />}
-                            {trend === 'stable' && <TrendingFlat size={14} color="#6b7280" />}
+                            {trend === 'stable' && <Minus size={14} color="#6b7280" />}
                             <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                                 {trend}
                             </span>

@@ -12,6 +12,7 @@ import {
     Link2,
     ToggleRight
 } from 'lucide-react';
+import NotificationSettings from '../components/NotificationSettings';
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('venue');
@@ -109,57 +110,63 @@ export default function SettingsPage() {
                                 <Bell size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--gold-400)' }} />
                                 Notification Preferences
                             </h2>
-                            {[
-                                { label: 'Certification Expiry Alerts', desc: 'Get notified 30/60 days before permits expire', default: true },
-                                { label: 'Daily Checklist Reminders', desc: 'Morning reminder to complete pre-opening checks', default: true },
-                                { label: 'Incident Reports', desc: 'Instant notification when a new incident is reported', default: true },
-                                { label: 'Weekly Compliance Summary', desc: 'Email digest of your venue\'s compliance score', default: false },
-                                { label: 'Seafood Label Alerts', desc: 'Alert when imported items are missing signage', default: true },
-                            ].map((item, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-center justify-between"
-                                    style={{
-                                        padding: '14px 0',
-                                        borderBottom: '1px solid var(--border-default)',
-                                    }}
-                                >
-                                    <div>
-                                        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.label}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{item.desc}</div>
-                                    </div>
-                                    <label style={{ position: 'relative', width: 44, height: 24, cursor: 'pointer' }}>
-                                        <input
-                                            type="checkbox"
-                                            defaultChecked={item.default}
-                                            style={{ display: 'none' }}
-                                        />
-                                        <div
-                                            style={{
-                                                width: 44,
-                                                height: 24,
-                                                borderRadius: 12,
-                                                background: item.default ? 'var(--gold-400)' : 'var(--metal-700)',
-                                                position: 'relative',
-                                                transition: 'background var(--transition-fast)',
-                                            }}
-                                        >
+
+                            {/* Push Notification Settings */}
+                            <NotificationSettings />
+
+                            <div style={{ marginTop: 32 }}>
+                                {[
+                                    { label: 'Certification Expiry Alerts', desc: 'Get notified 30/60 days before permits expire', default: true },
+                                    { label: 'Daily Checklist Reminders', desc: 'Morning reminder to complete pre-opening checks', default: true },
+                                    { label: 'Incident Reports', desc: 'Instant notification when a new incident is reported', default: true },
+                                    { label: 'Weekly Compliance Summary', desc: 'Email digest of your venue\'s compliance score', default: false },
+                                    { label: 'Seafood Label Alerts', desc: 'Alert when imported items are missing signage', default: true },
+                                ].map((item, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-center justify-between"
+                                        style={{
+                                            padding: '14px 0',
+                                            borderBottom: '1px solid var(--border-default)',
+                                        }}
+                                    >
+                                        <div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.label}</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{item.desc}</div>
+                                        </div>
+                                        <label style={{ position: 'relative', width: 44, height: 24, cursor: 'pointer' }}>
+                                            <input
+                                                type="checkbox"
+                                                defaultChecked={item.default}
+                                                style={{ display: 'none' }}
+                                            />
                                             <div
                                                 style={{
-                                                    width: 18,
-                                                    height: 18,
-                                                    borderRadius: '50%',
-                                                    background: 'white',
-                                                    position: 'absolute',
-                                                    top: 3,
-                                                    left: item.default ? 23 : 3,
-                                                    transition: 'left var(--transition-fast)',
+                                                    width: 44,
+                                                    height: 24,
+                                                    borderRadius: 12,
+                                                    background: item.default ? 'var(--gold-400)' : 'var(--metal-700)',
+                                                    position: 'relative',
+                                                    transition: 'background var(--transition-fast)',
                                                 }}
-                                            />
-                                        </div>
-                                    </label>
-                                </div>
-                            ))}
+                                            >
+                                                <div
+                                                    style={{
+                                                        width: 18,
+                                                        height: 18,
+                                                        borderRadius: '50%',
+                                                        background: 'white',
+                                                        position: 'absolute',
+                                                        top: 3,
+                                                        left: item.default ? 23 : 3,
+                                                        transition: 'left var(--transition-fast)',
+                                                    }}
+                                                />
+                                            </div>
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
